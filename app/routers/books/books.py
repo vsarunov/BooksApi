@@ -1,6 +1,6 @@
 import uuid
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, validator
 
 router = APIRouter(
     prefix="/books",
@@ -19,11 +19,21 @@ fake_books = {
     }
 }
 
-
 class Book(BaseModel):
     name: str
     author: str
 
+    @validator('name')
+    def name_must_not_be_empty(cls, v):
+        if not v:
+            raise ValueError('must not be empty')
+        return v
+
+    @validator('author')
+    def author_must_not_be_empty(cls, v):
+        if not v:
+            raise ValueError('must not be empty')
+        return v
 
 @router.get("/", status_code = 200)
 async def get_books():
@@ -44,14 +54,14 @@ async def create_new_book(book: Book):
     return {"bookId": newBookId}
 
 
-@router.put("/{id}", status_code = 200)
+@router.put("/{id}", status_code = 204)
 async def update_book(id: str, book: Book):
     if id not in fake_books:
         raise HTTPException(status_code=404, detail="book not found")
     fake_books[str(id)] = {"author": book.author, "name": book.name}
 
 
-@router.delete("/{id}", status_code = 200)
+@router.delete("/{id}", status_code = 204)
 async def delete_book(id: str):
     if id not in fake_books:
         raise HTTPException(status_code=404, detail="book not found")
