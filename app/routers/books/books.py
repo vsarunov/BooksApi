@@ -1,5 +1,6 @@
 import uuid
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError, validator
 
 router = APIRouter(
@@ -18,6 +19,12 @@ fake_books = {
         "name": "Children of Dune"
     }
 }
+
+async def value_error_exception_handler(request: Request, exc: ValueError):
+    return JSONResponse(
+        status_code=400,
+        content={"message": str(exc)},
+    )
 
 class Book(BaseModel):
     name: str
