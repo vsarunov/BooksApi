@@ -1,6 +1,8 @@
 from .models import Book
-from fastapi import HTTPException,  Header
+from fastapi import HTTPException,  Header, Depends
 import uuid
+from .requests import BookRequest
+
 
 class BookRepository:
 
@@ -50,3 +52,12 @@ async def verify_key(x_key: str = Header(...)):
     if x_key != "fake-super-secret-key":
         raise HTTPException(status_code=400, detail="X-Key header invalid")
     return x_key
+
+
+def book_mapper(book: BookRequest):
+    return Book(name=book.name, author=book.author)
+
+
+def book_extractor(
+    mapper: book_mapper = Depends(book_mapper)
+): return mapper
