@@ -7,7 +7,7 @@ router = APIRouter(
     prefix="/books",
     tags=["books"],
     responses={404: {"description": "Not found"}},
-    # dependencies=[Depends(verify_token), Depends(verify_key)]
+    dependencies=[Depends(verify_token), Depends(verify_key)]
 )
 
 @router.get("/", status_code=200)
